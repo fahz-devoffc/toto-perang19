@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text For Fahz -Exploit REALTIME</title>
+    
+    <!-- Firebase SDK v9 Modular -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore.js";
+
+        // CONFIG FIREBASE MU - SUDAH DIMASUKKAN
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEPOFgsyW0OSsERB_aCdnFZC_V0eEpZ5c",
+            authDomain: "messageweb-c5a4f.firebaseapp.com",
+            projectId: "messageweb-c5a4f",
+            storageBucket: "messageweb-c5a4f.firebasestorage.app",
+            messagingSenderId: "254878507757",
+            appId: "1:254878507757:web:33fe1851cb19661b4d62e4",
+            measurementId: "G-82MGR878F6"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Export untuk digunakan di kode lain
+        window.firebaseApp = app;
+        window.firebaseDb = db;
+        window.firebaseModules = { 
+            collection, 
+            addDoc, 
+            serverTimestamp, 
+            onSnapshot, 
+            query, 
+            orderBy 
+        };
+        
+        console.log("🔥 Firebase initialized successfully!");
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #ff2a6d;
+            --secondary: #05d9e8;
+            --dark: #0c0c1d;
+            --darker: #01012b;
+            --light: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 50%, #005678 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .hidden-admin-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.1;
+            transition: opacity 0.3s;
+            font-size: 0.8em;
+            z-index: 1000;
+        }
+        
+        .hidden-admin-btn:hover {
+            opacity: 1;
+            background: rgba(5, 217, 232, 0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+        
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5em;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255, 42, 109, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: var(--secondary);
+            opacity: 0.8;
+        }
+        
+        .realtime-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: var(--light);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .message-form {
+            background: rgba(12, 12, 29, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(5, 217, 232, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9em;
+        }
+        
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 15px;
+            background: rgba(1, 1, 43, 0.6);
+            border: 1px solid rgba(5, 217, 232, 0.3);
+            border-radius: 10px;
+            color: var(--light);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 15px rgba(5, 217, 232, 0.3);
+        }
+        
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--darker);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 42, 109, 0.4);
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--darker);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        .info-panel {
+            background: rgba(12, 12, 29, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 42, 109, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(1, 1, 43, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(5, 217, 232, 0.2);
+        }
+        
+        .stat-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            color: var(--secondary);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .features {
+            list-style: none;
+        }
+        
+        .features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .features li:before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: var(--secondary);
+        }
+        
+        /* Admin Panel Styles */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(1, 1, 43, 0.98);
+            z-index: 9999;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--secondary);
+        }
+        
+        .admin-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            color: var(--primary);
+        }
+        
+        .close-admin {
+            background: var(--primary);
+            color: var(--light);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+        }
+        
+        .messages-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .message-card {
+            background: rgba(12, 12, 29, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 42, 109, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .message-card.new {
+            border-color: var(--secondary);
+            box-shadow: 0 0 20px rgba(5, 217, 232, 0.3);
+            animation: highlight 2s ease-in-out;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(5, 217, 232, 0.2);
+        }
+        
+        .message-sender {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        
+        .message-time {
+            color: var(--primary);
+            font-size: 0.9em;
+        }
+        
+        .message-content {
+            color: var(--light);
+            line-height: 1.6;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            background: var(--primary);
+            color: var(--light);
+            font-weight: 600;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 1001;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes highlight {
+            0% { background: rgba(5, 217, 232, 0.2); }
+            100% { background: rgba(12, 12, 29, 0.8); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hidden Admin Button -->
+    <button class="hidden-admin-btn" onclick="showAdminPanel()">ID : 101221</button>
+    
+    <!-- Particles Background -->
+    <canvas class="particles" id="particles"></canvas>
+    
+    <!-- Main Container -->
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Text For Fahz -Exploit <span class="realtime-badge">LIVE</span></h1>
+            <p class="subtitle">Real-time anonymous messaging system</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- Message Form -->
+            <div class="message-form">
+                <h2 style="color: var(--secondary); margin-bottom: 20px;">Send Message</h2>
+                <form id="messageForm">
+                    <div class="form-group">
+                        <label class="form-label">Your Name</label>
+                        <input type="text" class="form-input" id="senderName" placeholder="Enter your name (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Your Message</label>
+                        <textarea class="form-textarea" id="messageContent" placeholder="Type your message here..." required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <div class="loading-spinner" id="loadingSpinner"></div>
+                        Send Message
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Info Panel -->
+            <div class="info-panel">
+                <h2 style="color: var(--primary); margin-bottom: 20px;">Live System Info</h2>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalMessages">0</div>
+                        <div class="stat-label">Total Messages</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeUsers">0</div>
+                        <div class="stat-label">Unique Senders</div>
+                    </div>
+                </div>
+                
+                <h3 style="color: var(--secondary); margin: 25px 0 15px 0;">Real-time Features</h3>
+                <ul class="features">
+                    <li>Instant message delivery to all admins</li>
+                    <li>Live message counter updates</li>
+                    <li>Cloud-based permanent storage</li>
+                    <li>Cross-device synchronization</li>
+                    <li>Secure Firebase backend</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Panel (Hidden) -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h2 class="admin-title">Admin Panel - Live Message Inbox</h2>
+            <button class="close-admin" onclick="hideAdminPanel()">Close</button>
+        </div>
+        
+        <div class="messages-grid" id="messagesContainer">
+            <!-- Messages will be loaded here in real-time -->
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // ==================== REAL-TIME MESSAGING SYSTEM ====================
+        class RealtimeMessageSystem {
+            constructor() {
+                this.messages = [];
+                this.init();
+            }
+            
+            async init() {
+                // Tunggu Firebase siap
+                setTimeout(() => {
+                    this.setupRealtimeListener();
+                    this.updateStats();
+                }, 1000);
+            }
+            
+            setupRealtimeListener() {
+                if (!window.firebaseDb || !window.firebaseModules) {
+                    console.error("Firebase not initialized yet");
+                    setTimeout(() => this.setupRealtimeListener(), 500);
+                    return;
+                }
+
+                const { collection, onSnapshot, query, orderBy } = window.firebaseModules;
+                const db = window.firebaseDb;
+                
+                try {
+                    const messagesQuery = query(collection(db, 'messages'), orderBy('timestamp', 'desc'));
+                    
+                    onSnapshot(messagesQuery, (snapshot) => {
+                        this.messages = [];
+                        snapshot.forEach((doc) => {
+                            this.messages.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
+                        });
+                        
+                        this.updateStats();
+                        this.displayMessages();
+                        
+                        // Notify admin panel jika terbuka
+                        if (document.getElementById('adminPanel').style.display === 'block') {
+                            this.highlightNewMessages();
+                        }
+                    });
+                    
+                    console.log("✅ Real-time listener activated");
+                } catch (error) {
+                    console.error("Error setting up real-time listener:", error);
+                    showNotification('Firebase connection error', 'error');
+                }
+            }
+            
+            async sendMessage(sender, content) {
+                if (!window.firebaseDb || !window.firebaseModules) {
+                    showNotification('Firebase not ready yet', 'error');
+                    return false;
+                }
+
+                try {
+                    const { collection, addDoc, serverTimestamp } = window.firebaseModules;
+                    const db = window.firebaseDb;
+                    
+                    const messageData = {
+                        sender: sender || 'Anonymous',
+                        content: content,
+                        timestamp: serverTimestamp(),
+                        ip: await this.getClientIP(),
+                        userAgent: navigator.userAgent,
+                        date: new Date().toISOString()
+                    };
+                    
+                    await addDoc(collection(db, 'messages'), messageData);
+                    console.log("✅ Message saved to Firebase");
+                    return true;
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                    showNotification('Failed to send message: ' + error.message, 'error');
+                    return false;
+                }
+            }
+            
+            async getClientIP() {
+                try {
+                    const response = await fetch('https://api.ipify.org?format=json');
+                    const data = await response.json();
+                    return data.ip;
+                } catch (error) {
+                    return 'Unknown';
+                }
+            }
+            
+            updateStats() {
+                document.getElementById('totalMessages').textContent = this.messages.length;
+                
+                const uniqueSenders = new Set(this.messages.map(msg => msg.sender));
+                document.getElementById('activeUsers').textContent = uniqueSenders.size;
+            }
+            
+            displayMessages() {
+                const container = document.getElementById('messagesContainer');
+                
+                if (this.messages.length === 0) {
+                    container.innerHTML = '<div class="message-card"><div class="message-content">No messages yet. Waiting for incoming messages...</div></div>';
+                    return;
+                }
+                
+                container.innerHTML = this.messages.map(message => `
+                    <div class="message-card" id="message-${message.id}">
+                        <div class="message-header">
+                            <div class="message-sender">${this.escapeHtml(message.sender)}</div>
+                            <div class="message-time">${this.formatTimestamp(message.timestamp)}</div>
+                        </div>
+                        <div class="message-content">${this.escapeHtml(message.content)}</div>
+                        <div style="margin-top: 10px; font-size: 0.8em; color: #05d9e8;">
+                            IP: ${message.ip || 'Unknown'} | ID: ${message.id}
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            highlightNewMessages() {
+                // Highlight pesan baru dengan animasi
+                this.messages.slice(0, 3).forEach(message => {
+                    const messageElement = document.getElementById(`message-${message.id}`);
+                    if (messageElement) {
+                        messageElement.classList.add('new');
+                        setTimeout(() => {
+                            messageElement.classList.remove('new');
+                        }, 2000);
+                    }
+                });
+            }
+            
+            formatTimestamp(timestamp) {
+                if (!timestamp) return 'Just now';
+                
+                try {
+                    if (timestamp.toDate) {
+                        return timestamp.toDate().toLocaleString('id-ID');
+                    }
+                    return new Date(timestamp).toLocaleString('id-ID');
+                } catch (error) {
+                    return 'Recent';
+                }
+            }
+            
+            escapeHtml(unsafe) {
+                if (!unsafe) return '';
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        }
+
+        // ==================== INITIALIZE SYSTEM ====================
+        let messageSystem;
+        
+        // Tunggu Firebase siap kemudian initialize system
+        setTimeout(() => {
+            messageSystem = new RealtimeMessageSystem();
+            showNotification('System ready! Firebase connected.', 'success');
+        }, 1500);
+
+        // ==================== FORM HANDLING ====================
+        document.getElementById('messageForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const sender = document.getElementById('senderName').value;
+            const content = document.getElementById('messageContent').value;
+            
+            if (!content.trim()) {
+                showNotification('Please enter a message!', 'error');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            loadingSpinner.style.display = 'inline-block';
+            submitBtn.innerHTML = '<div class="loading-spinner" id="loadingSpinner"></div>Sending...';
+            
+            try {
+                const success = await messageSystem.sendMessage(sender, content);
+                
+                if (success) {
+                    showNotification('Message sent successfully! Admin will see it in real-time!', 'success');
+                    document.getElementById('messageForm').reset();
+                } else {
+                    showNotification('Failed to send message. Please try again.', 'error');
+                }
+            } catch (error) {
+                showNotification('Error sending message: ' + error.message, 'error');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                loadingSpinner.style.display = 'none';
+                submitBtn.innerHTML = 'Send Message';
+            }
+        });
+
+        // ==================== ADMIN PANEL FUNCTIONS ====================
+        function showAdminPanel() {
+            const adminPanel = document.getElementById('adminPanel');
+            if (messageSystem) {
+                messageSystem.displayMessages();
+            }
+            adminPanel.style.display = 'block';
+        }
+        
+        function hideAdminPanel() {
+            const adminPanel = document.getElementById('adminPanel');
+            adminPanel.style.display = 'none';
+        }
+        
+        // ==================== NOTIFICATION SYSTEM ====================
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification show';
+            
+            if (type === 'error') {
+                notification.style.background = '#ff2a6d';
+            } else if (type === 'success') {
+                notification.style.background = '#05d9e8';
+            }
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // ==================== PARTICLE SYSTEM ====================
+        class ParticleSystem {
+            constructor() {
+                this.canvas = document.getElementById('particles');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.resize();
+                this.init();
+                window.addEventListener('resize', () => this.resize());
+            }
+            
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            init() {
+                const particleCount = 80;
+                for (let i = 0; i < particleCount; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        size: Math.random() * 2 + 1,
+                        speedX: (Math.random() - 0.5) * 0.5,
+                        speedY: (Math.random() - 0.5) * 0.5,
+                        color: Math.random() > 0.7 ? '#ff2a6d' : '#05d9e8',
+                        opacity: Math.random() * 0.3 + 0.1
+                    });
+                }
+                this.animate();
+            }
+            
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                this.particles.forEach(particle => {
+                    particle.x += particle.speedX;
+                    particle.y += particle.speedY;
+                    
+                    if (particle.x < 0 || particle.x > this.canvas.width) particle.speedX *= -1;
+                    if (particle.y < 0 || particle.y > this.canvas.height) particle.speedY *= -1;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    this.ctx.fillStyle = particle.color;
+                    this.ctx.globalAlpha = particle.opacity;
+                    this.ctx.fill();
+                });
+                
+                this.ctx.globalAlpha = 1;
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        new ParticleSystem();
+        
+        // ==================== KEYBOARD SHORTCUTS ====================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideAdminPanel();
+            }
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                showAdminPanel();
+            }
+        });
+
+        console.log("🚀 System initialized with your Firebase config!");
+    </script>
+</body>
+</html>
